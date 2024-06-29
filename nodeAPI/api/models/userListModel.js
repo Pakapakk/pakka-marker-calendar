@@ -15,10 +15,14 @@ var AccountSchema = new Schema({
 
 var EventSchema = new Schema({
     Date: {
-        type: String,
+        type: Date,
         required: 'Please enter'
     },
     Time: {
+        type: String,
+        required: 'Please enter'
+    },
+    EventName: {
         type: String,
         required: 'Please enter'
     },
@@ -26,7 +30,7 @@ var EventSchema = new Schema({
         type: String,
         required: 'Please enter'
     },
-}, { collection: 'Event' });
+}, { collection: 'Events' });
 
 
 const Event = mongoose.model('Event', EventSchema);

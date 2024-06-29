@@ -30,7 +30,7 @@
 
 .navbar {
     height: 60px;
-    width: 90vw;
+    width: 95vw;
     margin: 0 auto;
     margin-top: 35px;
     padding-left: 1em;

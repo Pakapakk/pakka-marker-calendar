@@ -4,7 +4,7 @@ const { Event, Account } = require('../models/userListModel');
 var md5 = require('md5')
 
 exports.listAllEvents = function(req, res){
-    var query = { sort: { Date: 1 } }
+    var query = { sort: { Time: 1 } }
     Event.find({}, null, query, function(err, event){
         if(err) throw err
         //console.log(event)
