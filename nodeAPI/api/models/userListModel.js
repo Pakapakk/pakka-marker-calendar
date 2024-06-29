@@ -26,6 +26,14 @@ var EventSchema = new Schema({
         type: String,
         required: 'Please enter'
     },
+    City: {
+        type: String,
+        required: 'Please enter'
+    },
+    Country: {
+        type: String,
+        required: 'Please enter'
+    },
     Description: {
         type: String,
         required: 'Please enter'

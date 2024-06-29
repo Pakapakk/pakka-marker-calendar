@@ -14,6 +14,7 @@
 				<div v-for="event in filterEvents" :key="event.id" class="event-card">
 					<h3>{{ event.EventName }}</h3>
 					<p>{{ event.Time }}</p>
+					<p>{{ event.Location }}</p>
 					<p>{{ event.Description }}</p>
 				</div>
 			</div>
