@@ -14,12 +14,12 @@ var AccountSchema = new Schema({
 }, { collection: 'User' });
 
 var EventSchema = new Schema({
-    Date: {
+    StartTime: {
         type: Date,
         required: 'Please enter'
     },
-    Time: {
-        type: String,
+    EndTime: {
+        type: Date,
         required: 'Please enter'
     },
     EventName: {
