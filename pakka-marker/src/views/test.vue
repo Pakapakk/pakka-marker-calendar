@@ -17,6 +17,7 @@ const isDark = ref(false);
 
 <style>
 .calendar-wrapper {
+  padding-top: 30px;
   display: flex;
   justify-content: center;
   /* align-items: center; */

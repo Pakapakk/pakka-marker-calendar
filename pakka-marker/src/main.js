@@ -1,5 +1,4 @@
 import './assets/main.css'
-
 import { createApp } from 'vue'
 import App from './App.vue'
 import router from './router'
@@ -22,12 +21,12 @@ let auth;
 
 // Your web app's Firebase configuration
 const firebaseConfig = {
-    apiKey: `${process.env.FIREBASE_API_KEY}`,
-    authDomain: `${process.env.FIREBASE_AUTH_DOMAIN}`,
+    apiKey: `import.meta.env.VUE_APP_FIREBASE_API_KEY`,
+    authDomain: `import.meta.env.VUE_APP_FIREBASE_AUTH_DOMAIN`,
     projectId: "webpro-contact",
     storageBucket: "webpro-contact.appspot.com",
-    messagingSenderId: `${process.env.FIREBASE_SENDER_ID}`,
-    appId: `${process.env.FIREBASE_APP_ID}`
+    messagingSenderId: `import.meta.env.VUE_APP_FIREBASE_SENDER_ID`,
+    appId: `import.meta.env.VUE_APP_FIREBASE_APP_ID`
   };
 
 // Initialize Firebase
