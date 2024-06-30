@@ -19,7 +19,7 @@ const router = createRouter({
       component: AddEvent
     },
     {
-      path: '/editEvent',
+      path: '/editEvent/:id',
       name: 'editEvent',
       component: EditEvent
     },

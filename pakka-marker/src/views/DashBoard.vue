@@ -41,6 +41,7 @@
 						</button>
 					</div>
 					<div class="modal-body">
+						<p><strong>ID:</strong> {{ EventDetail._id }}</p>
 						<p><strong>Start Time:</strong> {{ formatDate(EventDetail.StartTime) }}</p>
 						<p><strong>End Time:</strong> {{ formatDate(EventDetail.EndTime) }}</p>
 						<p><strong>City:</strong> {{ EventDetail.City }}</p>
@@ -48,8 +49,8 @@
 						<p><strong>Description:</strong> {{ EventDetail.Description }}</p>
 					</div>
 					<div class="modal-footer">
-						<router-link to="/editEvent">
-							<button class="btn btn-warning" style="margin-left: 10px;">Edit</button>
+						<router-link :to="{ path: 'editEvent', name: 'editEvent', params: { id: EventId } }">
+							<button class="btn btn-primary btn-sm mr-2">Edit</button>
 						</router-link>
 						<button type="button" class="btn btn-danger"
 							@click="deleteEvent(EventDetail._id)">Delete</button>
@@ -78,7 +79,7 @@ export default {
 	data() {
 		return {
 			search: '',
-			EventId: '',
+			EventId: '000000000000000000000000',
 			Events: [],
 			EventDetail: {}
 		}
@@ -105,7 +106,7 @@ export default {
 	methods: {
 		openMoreInfo(id) {
 			this.EventId = id;
-			console.log("event -> " + id);
+			console.log("event -> " + this.EventId);
 			$('#myModal').modal('show');
 
 			axios.get('http://127.0.0.1:3427/events/readevent/' + this.EventId)

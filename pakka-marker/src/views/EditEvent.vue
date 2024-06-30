@@ -1,186 +1,209 @@
-<!-- TODO : Edit Event -->
 <template>
-	<div class="dashboard-container">
-		<div class="calendar-section">
-			<div class="calendar-wrapper">
-				<div class="calendar-container">
-					<div class="space-y-2">
-						<VCalendar class="text-2xl" expanded borderless color="green" :attributes="attrs" />
-					</div>
-				</div>
-				<div class="add-button">
-					<router-link to="/addEvent">
-						<button class="btn btn-warning" style="margin-left: 10px;">Add</button>
-					</router-link>
-				</div>
-			</div>
-		</div>
-		<div class="events-section">
-			<h2 class="text-xl">Today's Events</h2>
-			<div v-if="filterEvents.length === 0">
-				<p>No events for today.</p>
-			</div>
-			<div v-else>
-				<div v-for="event in filterEvents" :key="event.id" class="event-card">
-					<h3>{{ event.EventName }}</h3>
-					<p>{{ formatDate(event.StartTime) }}</p>
-					<p>{{ event.City }}, {{ event.Country }}</p>
-					<button class="btn btn-primary" @click="openMoreInfo(event._id)">More</button>
-				</div>
-			</div>
-		</div>
-
-		<!-- Modal for More Info -->
-		<div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
-			aria-hidden="true">
-			<div class="modal-dialog modal-dialog-centered" role="document">
-				<div class="modal-content">
-					<div class="modal-header">
-						<h5 class="modal-title" id="exampleModalLabel">{{ EventDetail.EventName }}</h5>
-						<button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
-							<span aria-hidden="true">&times;</span>
-						</button>
-					</div>
-					<div class="modal-body">
-						<p><strong>Start Time:</strong> {{ formatDate(EventDetail.StartTime) }}</p>
-						<p><strong>End Time:</strong> {{ formatDate(EventDetail.EndTime) }}</p>
-						<p><strong>City:</strong> {{ EventDetail.City }}</p>
-						<p><strong>Country:</strong> {{ EventDetail.Country }}</p>
-						<p><strong>Description:</strong> {{ EventDetail.Description }}</p>
-					</div>
-					<div class="modal-footer">
-						<router-link to="/editEvent">
-							<button class="btn btn-warning" style="margin-left: 10px;">Edit</button>
-						</router-link>
-						<button type="button" class="btn btn-danger"
-							@click="deleteEvent(EventDetail._id)">Delete</button>
-					</div>
-				</div>
-			</div>
-		</div>
-	</div>
+    <div class="dashboard-container">
+        <div class="calendar-section">
+            <div class="calendar-wrapper">
+                <div class="calendar-container">
+                    <div class="space-y-2">
+                        <VDatePicker expanded v-model.range="range" mode="date" rules="auto" is24hr :update-on-input="true"/>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="events-section">
+            <h2 class="text-xl">Add Event</h2>
+            <form @submit.prevent="addEvent">
+                <div class="form-group">
+                    <label for="eventName">Event Name</label>
+                    <input type="text" class="form-control" id="eventName" v-model="Event.EventName" required />
+                </div>
+                <div class="form-group">
+                    <label for="startTime">Start Time</label>
+                    <input type="datetime-local" class="form-control" id="startTime" v-model="Event.StartTime"
+                        required />
+                </div>
+                <div class="form-group">
+                    <label for="endTime">End Time</label>
+                    <input type="datetime-local" class="form-control" id="endTime" v-model="Event.EndTime" required />
+                </div>
+                <div class="form-group">
+                    <label for="city">City</label>
+                    <input type="text" class="form-control" id="city" v-model="Event.City" required />
+                </div>
+                <div class="form-group">
+                    <label for="country">Country</label>
+                    <input type="text" class="form-control" id="country" v-model="Event.Country" required />
+                </div>
+                <div class="form-group">
+                    <label for="description">Description</label>
+                    <textarea class="form-control" id="description" v-model="Event.Description" required></textarea>
+                </div>
+                <button type="submit" class="btn btn-primary">Add Event</button>
+            </form>
+            <!-- <button class="test" @click="test">test</button> -->
+        </div>
+    </div>
 </template>
 
-<script setup>
-import { ref } from 'vue';
-import axios from 'axios';
-
-const attrs = ref([
-	{
-		highlight: true,
-		dates: new Date(),
-	},
-]);
-</script>
-
 <script>
+import axios from 'axios'
+import { ref, watch } from 'vue';
+
 export default {
-	name: 'DashBoard',
-	data() {
-		return {
-			search: '',
-			EventId: '',
-			Events: [],
-			EventDetail: {}
-		}
-	},
-	mounted() {
-		axios.get('http://127.0.0.1:3427/events/getevents')
-			.then((response) => {
-				console.log(response);
-				this.Events = response.data;
-			});
-	},
-	computed: {
-		filterEvents() {
-			const today = new Date().toISOString().split('T')[0];
-			console.log(today);
+    name: 'EditEvent',
+    setup() {
+        const range = ref({
+            start: new Date(),
+            end: new Date()
+        });
 
-			return this.Events.filter((event) => {
-				// Ensure EventDate is in ISO format YYYY-MM-DD
-				const eventDate = new Date(event.StartTime).toISOString().split('T')[0];
-				return eventDate === today && event.EventName.toLowerCase().includes(this.search.toLowerCase());
-			});
-		}
-	},
-	methods: {
-		openMoreInfo(id) {
-			this.EventId = id;
-			console.log("event -> " + id);
-			$('#myModal').modal('show');
+        function formatDate(date) {
+            const d = new Date(date);
+            const yyyy = d.getFullYear();
+            const mm = String(d.getMonth() + 1).padStart(2, '0');
+            const dd = String(d.getDate()).padStart(2, '0');
+            const hh = String(d.getHours()).padStart(2, '0');
+            const min = String(d.getMinutes()).padStart(2, '0');
+            return `${yyyy}-${mm}-${dd}T${hh}:${min}`;
+        }
 
-			axios.get('http://127.0.0.1:3427/events/readevent/' + this.EventId)
-				.then((response) => {
-					console.log(response);
-					this.EventDetail = response.data;
-				})
-		},
-		formatDate(date) {
-			const options = { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit', hour12: true };
-			return new Date(date).toLocaleString('en-GB', options).toUpperCase();
-		}
+        const Event = ref({
+            StartTime: '',
+            EndTime: '',
+            EventName: '',
+            City: '',
+            Country: '',
+            Description: ''
+        });
+
+        watch(() => range.value, (newRange) => {
+            Event.value.StartTime = formatDate(newRange.start);
+            Event.value.EndTime = formatDate(newRange.end);
+        }, { deep: true });
+
+        // Watch for changes in Event and update range
+        watch(() => Event.value.StartTime, (newStartTime) => {
+            range.value.start = new Date(newStartTime);
+        });
+
+        watch(() => Event.value.EndTime, (newEndTime) => {
+            range.value.end = new Date(newEndTime);
+        });
+
+        return {
+            range,
+            Event,
+        };
+    },
+    methods: {
+        addEvent() {
+            axios.post('http://127.0.0.1:3427/events/addevent', this.Event)
+                .then(response => {
+                    console.log(response.data);
+                })
+                .catch(error => {
+                    console.log(error);
+                });
+        }
+    },
+	mounted(){
+		axios.get('http://127.0.0.1:3427/events/edit/' + this.$route.params.id)
+            .then((res) => {
+                this.User = res.data;
+                console.log(res.data);
+            })
+            .catch((error) => {
+                console.log(error);
+            })
 	}
+
 }
 </script>
 
 <style>
 .dashboard-container {
-	display: flex;
-	width: 100vw;
-	height: 100vh;
-	padding: 50px;
+    display: flex;
+    width: 100vw;
+    height: 100vh;
+    padding: 20px;
 }
 
 .calendar-section {
-	flex: 1;
-	display: flex;
-	flex-direction: column;
-	align-items: center;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
 }
 
 .calendar-wrapper {
-	width: 100%;
+    width: 100%;
 }
 
 .calendar-container {
-	width: 80%;
-	justify-content: center;
-	align-items: center;
+    width: 100%;
+    justify-content: center;
+    align-items: center;
 }
 
 .add-button {
-	margin-top: 20px;
+    margin-top: 20px;
 }
 
 .events-section {
-	flex: 1;
-	display: flex;
-	flex-direction: column;
-	align-items: center;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
 }
 
 .events-container {
-	width: 100%;
-	margin-top: 20px;
+    width: 100%;
+    margin-top: 20px;
 }
 
 .event-card {
-	border: 1px solid #ccc;
-	padding: 10px;
-	margin-bottom: 10px;
-	border-radius: 10px;
-	/* Rounded edges */
-	box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-	/* Shadow */
-	width: 500px;
+    border: 1px solid #ccc;
+    padding: 10px;
+    margin-bottom: 10px;
+    border-radius: 10px;
+    /* Rounded edges */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    /* Shadow */
 }
 
 .event-card h3 {
-	margin: 0;
-	font-size: 1.25em;
+    margin: 0;
+    font-size: 1.25em;
 }
 
 .event-card p {
-	margin: 5px 0;
+    margin: 5px 0;
+}
+
+.form-group {
+    margin-bottom: 15px;
+}
+
+.form-group label {
+    font-weight: bold;
+}
+
+.form-group input,
+.form-group textarea {
+    width: 100%;
+    padding: 8px;
+    box-sizing: border-box;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+}
+
+.form-group input:focus,
+.form-group textarea:focus {
+    outline: none;
+    border-color: #66afe9;
+    box-shadow: 0 0 8px rgba(102, 175, 233, 0.6);
+}
+
+button {
+    width: 100%;
 }
 </style>
