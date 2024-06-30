@@ -1,28 +1,17 @@
 <template>
-	<div class="calendar-wrapper">
-		<div class="calendar-container">
-			<div class="space-y-2">
-				<VCalendar class="text-2xl" expanded borderless color="green" :attributes="attrs" />
-			</div>
-		</div>
-		<div class="events-container">
-			<h2 class="text-xl">Today's Events</h2>
-			<div v-if="filterEvents.length === 0">
-				<p>No events for today.</p>
-			</div>
-			<div v-else>
-				<div v-for="event in filterEvents" :key="event.id" class="event-card">
-					<h3>{{ event.EventName }}</h3>
-					<p>{{ event.Time }}</p>
-					<p>{{ event.Location }}</p>
-					<p>{{ event.Description }}</p>
-				</div>
-			</div>
-		</div>
+	<div class="dashboardPage">
+		<EventDisplay hue="0"/>
+		<EventDisplay hue="45"/>
+		<EventDisplay hue="90"/>
+		<EventDisplay hue="135"/>
+		<EventDisplay hue="180"/>
+		<EventDisplay hue="225"/>
+		<EventDisplay hue="270"/>
 	</div>
 </template>
 
 <script setup>
+import EventDisplay from '../components/EventDisplay.vue'
 import { ref } from 'vue';
 import axios from 'axios';
 
@@ -68,43 +57,7 @@ export default {
 </script>
 
 <style>
-.calendar-wrapper {
-	padding-top: 35px;
-	display: flex;
-	flex-direction: column;
-	align-items: center;
-	width: 98vw;
-	height: 100vh;
-}
-
-.calendar-container {
-	width: 600px;
-	height: 600px;
-	justify-content: center;
-	align-items: center;
-}
-
-.events-container {
-	width: 600px;
-	margin-top: 20px;
-}
-
-.event-card {
-	border: 1px solid #ccc;
-	padding: 10px;
-	margin-bottom: 10px;
-	border-radius: 10px;
-	/* Rounded edges */
-	box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-	/* Shadow */
-}
-
-.event-card h3 {
-	margin: 0;
-	font-size: 1.25em;
-}
-
-.event-card p {
-	margin: 5px 0;
-}
+	.dashboardPage {
+		padding: 10px;
+	}
 </style>
