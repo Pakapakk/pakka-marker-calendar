@@ -4,7 +4,7 @@
 			<div class="calendar-wrapper">
 				<div class="calendar-container">
 					<div class="space-y-2">
-						<VCalendar class="text-2xl" expanded borderless color="green" :attributes="attrs" />
+						<VDatePicker class="text-2xl" v-model.range="range" expanded borderless color="green" />
 					</div>
 				</div>
 				<div class="add-button">
@@ -30,30 +30,29 @@
 		</div>
 
 		<!-- Modal for More Info -->
-		<div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
-			aria-hidden="true">
+		<div class="modal" id="myModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
 			<div class="modal-dialog modal-dialog-centered" role="document">
 				<div class="modal-content">
 					<div class="modal-header">
-						<h5 class="modal-title" id="exampleModalLabel">{{ EventDetail.EventName }}</h5>
+						<h5 class="modal-title" id="exampleModalLabel">{{ Data.EventDetail.EventName }}</h5>
 						<button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
 							<span aria-hidden="true">&times;</span>
 						</button>
 					</div>
 					<div class="modal-body">
-						<p><strong>ID:</strong> {{ EventDetail._id }}</p>
-						<p><strong>Start Time:</strong> {{ formatDate(EventDetail.StartTime) }}</p>
-						<p><strong>End Time:</strong> {{ formatDate(EventDetail.EndTime) }}</p>
-						<p><strong>City:</strong> {{ EventDetail.City }}</p>
-						<p><strong>Country:</strong> {{ EventDetail.Country }}</p>
-						<p><strong>Description:</strong> {{ EventDetail.Description }}</p>
+						<!-- <p><strong>ID:</strong> {{ Data.EventDetail._id }}</p> -->
+						<p><strong>Start Time:</strong> {{ formatDate(Data.EventDetail.StartTime) }}</p>
+						<p><strong>End Time:</strong> {{ formatDate(Data.EventDetail.EndTime) }}</p>
+						<p><strong>City:</strong> {{ Data.EventDetail.City }}</p>
+						<p><strong>Country:</strong> {{ Data.EventDetail.Country }}</p>
+						<p><strong>Description:</strong> {{ Data.EventDetail.Description }}</p>
 					</div>
 					<div class="modal-footer">
-						<router-link :to="{ path: 'editEvent', name: 'editEvent', params: { id: EventId } }">
-							<button class="btn btn-primary btn-sm mr-2">Edit</button>
+						<router-link :to="{ path: 'editEvent', name: 'editEvent', params: { id: Data.EventId } }">
+							<button class="btn btn-primary btn-sm mr-2" data-bs-dismiss="modal">Edit</button>
 						</router-link>
 						<button type="button" class="btn btn-danger"
-							@click="deleteEvent(EventDetail._id)">Delete</button>
+							@click="deleteEvent(Data.EventDetail._id)">Delete</button>
 					</div>
 				</div>
 			</div>
@@ -61,67 +60,75 @@
 	</div>
 </template>
 
-<script setup>
-import { ref } from 'vue';
-import axios from 'axios';
-
-const attrs = ref([
-	{
-		highlight: true,
-		dates: new Date(),
-	},
-]);
-</script>
 
 <script>
+import { ref, watch, computed } from 'vue';
+import axios from 'axios';
+
 export default {
 	name: 'DashBoard',
-	data() {
-		return {
+	setup() {
+		const range = ref({
+			start: new Date(),
+			end: new Date()
+		});
+
+		const Data = ref({
 			search: '',
-			EventId: '000000000000000000000000',
+			EventId: 'helloilovewebprosomuch69',
 			Events: [],
 			EventDetail: {}
-		}
-	},
-	mounted() {
+		});
+
+
+
+		const filterEvents = computed(() => {
+			console.log(range.value.start)
+			const selectedDay = new Date(range.value.start).toISOString().split('T')[0];
+			// const today = new Date().toISOString().split('T')[0];
+			console.log(selectedDay);
+			// console.log(today);
+
+			return Data.value.Events.filter((event) => {
+				const eventDate = new Date(event.StartTime).toISOString().split('T')[0];
+				return eventDate === selectedDay && event.EventName?.toLowerCase().includes(Data.value.search.toLowerCase());
+			});
+		});
+
+		const openMoreInfo = (id) => {
+			Data.value.EventId = id;
+			console.log("event -> " + Data.value.EventId);
+			$('#myModal').modal('show');
+
+			axios.get('http://127.0.0.1:3427/events/readevent/' + Data.value.EventId)
+				.then((response) => {
+					console.log(response);
+					Data.value.EventDetail = response.data;
+				});
+		};
+
+		const formatDate = (date) => {
+			const options = { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit', hour12: true };
+			return new Date(date).toLocaleString('en-GB', options).toUpperCase();
+		};
+
 		axios.get('http://127.0.0.1:3427/events/getevents')
 			.then((response) => {
 				console.log(response);
-				this.Events = response.data;
+				Data.value.Events = response.data;
 			});
-	},
-	computed: {
-		filterEvents() {
-			const today = new Date().toISOString().split('T')[0];
-			console.log(today);
 
-			return this.Events.filter((event) => {
-				// Ensure EventDate is in ISO format YYYY-MM-DD
-				const eventDate = new Date(event.StartTime).toISOString().split('T')[0];
-				return eventDate === today && event.EventName.toLowerCase().includes(this.search.toLowerCase());
-			});
-		}
-	},
-	methods: {
-		openMoreInfo(id) {
-			this.EventId = id;
-			console.log("event -> " + this.EventId);
-			$('#myModal').modal('show');
-
-			axios.get('http://127.0.0.1:3427/events/readevent/' + this.EventId)
-				.then((response) => {
-					console.log(response);
-					this.EventDetail = response.data;
-				})
-		},
-		formatDate(date) {
-			const options = { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit', hour12: true };
-			return new Date(date).toLocaleString('en-GB', options).toUpperCase();
-		}
+		return {
+			range,
+			Data,
+			filterEvents,
+			openMoreInfo,
+			formatDate
+		};
 	}
 }
 </script>
+
 
 <style>
 .dashboard-container {

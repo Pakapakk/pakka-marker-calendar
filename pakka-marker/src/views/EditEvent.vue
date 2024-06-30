@@ -106,9 +106,9 @@ export default {
         }
     },
 	mounted(){
-		axios.get('http://127.0.0.1:3427/events/edit/' + this.$route.params.id)
+		axios.get('http://127.0.0.1:3427/events/update/' + this.$route.params.id)
             .then((res) => {
-                this.User = res.data;
+                this.Event = res.data;
                 console.log(res.data);
             })
             .catch((error) => {
