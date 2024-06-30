@@ -1,11 +1,20 @@
 <template>
-	<div class="calendar-wrapper">
-		<div class="calendar-container">
-			<div class="space-y-2">
-				<VCalendar class="text-2xl" expanded borderless color="green" :attributes="attrs" />
+	<div class="dashboard-container">
+		<div class="calendar-section">
+			<div class="calendar-wrapper">
+				<div class="calendar-container">
+					<div class="space-y-2">
+						<VCalendar class="text-2xl" expanded borderless color="green" :attributes="attrs" />
+					</div>
+				</div>
+				<div class="add-button">
+					<router-link to="/addEvent">
+						<button class="btn btn-warning" style="margin-left: 10px;">Add</button>
+					</router-link>
+				</div>
 			</div>
 		</div>
-		<div class="events-container">
+		<div class="events-section">
 			<h2 class="text-xl">Today's Events</h2>
 			<div v-if="filterEvents.length === 0">
 				<p>No events for today.</p>
@@ -13,9 +22,38 @@
 			<div v-else>
 				<div v-for="event in filterEvents" :key="event.id" class="event-card">
 					<h3>{{ event.EventName }}</h3>
-					<p>{{ event.Time }}</p>
-					<p>{{ event.Location }}</p>
-					<p>{{ event.Description }}</p>
+					<p>{{ formatDate(event.StartTime) }}</p>
+					<p>{{ event.City }}, {{ event.Country }}</p>
+					<button class="btn btn-primary" @click="openMoreInfo(event._id)">More</button>
+				</div>
+			</div>
+		</div>
+
+		<!-- Modal for More Info -->
+		<div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
+			aria-hidden="true">
+			<div class="modal-dialog modal-dialog-centered" role="document">
+				<div class="modal-content">
+					<div class="modal-header">
+						<h5 class="modal-title" id="exampleModalLabel">{{ EventDetail.EventName }}</h5>
+						<button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
+							<span aria-hidden="true">&times;</span>
+						</button>
+					</div>
+					<div class="modal-body">
+						<p><strong>Start Time:</strong> {{ formatDate(EventDetail.StartTime) }}</p>
+						<p><strong>End Time:</strong> {{ formatDate(EventDetail.EndTime) }}</p>
+						<p><strong>City:</strong> {{ EventDetail.City }}</p>
+						<p><strong>Country:</strong> {{ EventDetail.Country }}</p>
+						<p><strong>Description:</strong> {{ EventDetail.Description }}</p>
+					</div>
+					<div class="modal-footer">
+						<router-link to="/editEvent">
+							<button class="btn btn-warning" style="margin-left: 10px;">Edit</button>
+						</router-link>
+						<button type="button" class="btn btn-danger"
+							@click="deleteEvent(EventDetail._id)">Delete</button>
+					</div>
 				</div>
 			</div>
 		</div>
@@ -41,7 +79,8 @@ export default {
 		return {
 			search: '',
 			EventId: '',
-			Events: []
+			Events: [],
+			EventDetail: {}
 		}
 	},
 	mounted() {
@@ -58,34 +97,69 @@ export default {
 
 			return this.Events.filter((event) => {
 				// Ensure EventDate is in ISO format YYYY-MM-DD
-				const eventDate = new Date(event.Date).toISOString().split('T')[0];
+				const eventDate = new Date(event.StartTime).toISOString().split('T')[0];
 				return eventDate === today && event.EventName.toLowerCase().includes(this.search.toLowerCase());
 			});
 		}
+	},
+	methods: {
+		openMoreInfo(id) {
+			this.EventId = id;
+			console.log("event -> " + id);
+			$('#myModal').modal('show');
 
+			axios.get('http://127.0.0.1:3427/events/readevent/' + this.EventId)
+				.then((response) => {
+					console.log(response);
+					this.EventDetail = response.data;
+				})
+		},
+		formatDate(date) {
+			const options = { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit', hour12: true };
+			return new Date(date).toLocaleString('en-GB', options).toUpperCase();
+		}
 	}
 }
 </script>
 
 <style>
-.calendar-wrapper {
-	padding-top: 35px;
+.dashboard-container {
+	display: flex;
+	width: 100vw;
+	height: 100vh;
+	padding: 50px;
+}
+
+.calendar-section {
+	flex: 1;
 	display: flex;
 	flex-direction: column;
 	align-items: center;
-	width: 98vw;
-	height: 100vh;
+}
+
+.calendar-wrapper {
+	width: 100%;
 }
 
 .calendar-container {
-	width: 600px;
-	height: 600px;
+	width: 80%;
 	justify-content: center;
 	align-items: center;
 }
 
+.add-button {
+	margin-top: 20px;
+}
+
+.events-section {
+	flex: 1;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+}
+
 .events-container {
-	width: 600px;
+	width: 100%;
 	margin-top: 20px;
 }
 
@@ -97,6 +171,7 @@ export default {
 	/* Rounded edges */
 	box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 	/* Shadow */
+	width: 500px;
 }
 
 .event-card h3 {

@@ -1,10 +1,10 @@
 'use strict'
 var mongoose = require('mongoose')
-const { Event, Account } = require('../models/userListModel');
+const { Event, Account } = require('../models/eventListModel');
 var md5 = require('md5')
 
 exports.listAllEvents = function(req, res){
-    var query = { sort: { Time: 1 } }
+    var query = { sort: { StartTime: 1 } }
     Event.find({}, null, query, function(err, event){
         if(err) throw err
         //console.log(event)

@@ -11,7 +11,7 @@ mongoURI = cred.MONGO_URI;
 
 port = process.env.PORT || 3427
 mongoose = require('mongoose')
-User = require('./api/models/userListModel')
+User = require('./api/models/eventListModel')
 bodyParser = require('body-parser')
 mongoose.Promise = global.Promise
 
@@ -24,7 +24,7 @@ mongoose.connect(mongoURI, function(error){
 app.use(bodyParser.urlencoded({ extended: true}))
 app.use(bodyParser.json())
 
-var routes = require('./api/routes/userListRoutes')
+var routes = require('./api/routes/eventListRoutes')
 routes(app)
 
 app.listen(port)

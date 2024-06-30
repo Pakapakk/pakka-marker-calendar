@@ -1,5 +1,7 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import DashBoard from '../views/DashBoard.vue'
+import AddEvent from '../views/AddEvent.vue'
+import EditEvent from '../views/EditEvent.vue'
 import SignIn from '../views/SignIn.vue'
 import SignUp from '../views/SignUp.vue'
 
@@ -10,6 +12,16 @@ const router = createRouter({
       path: '/dashboard',
       name: 'dashboard',
       component: DashBoard
+    },
+    {
+      path: '/addEvent',
+      name: 'addEvent',
+      component: AddEvent
+    },
+    {
+      path: '/editEvent',
+      name: 'editEvent',
+      component: EditEvent
     },
     {
       path: '/signin',
