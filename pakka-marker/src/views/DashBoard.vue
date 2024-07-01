@@ -5,7 +5,8 @@
 				<div class="calendar-container">
 					<div class="space-y-2">
 						<!-- Use VDatePicker to select a date -->
-						<VDatePicker expanded v-model="range" mode="date" rules="auto" is24hr :update-on-input="true" color="green"/>
+						<VDatePicker expanded v-model="range" mode="date" rules="auto" is24hr :update-on-input="true"
+							color="green" />
 					</div>
 				</div>
 				<div class="add-button">
@@ -53,7 +54,7 @@
 							<button class="btn btn-primary btn-sm mr-2" data-bs-dismiss="modal">Edit</button>
 						</router-link>
 						<button type="button" class="btn btn-danger"
-							@click="deleteEvent(Data.EventDetail._id)">Delete</button>
+							@click="DELETE(Data.EventDetail._id)">Delete</button>
 					</div>
 				</div>
 			</div>
@@ -73,7 +74,8 @@ export default {
 				search: '',
 				EventId: 'helloilovewebprosomuch69',
 				Events: [],
-				EventDetail: {}
+				EventDetail: {},
+				tmpID: ''
 			}
 		};
 	},
@@ -105,6 +107,19 @@ export default {
 		formatDate(date) {
 			const options = { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit', hour12: true };
 			return new Date(date).toLocaleString('en-GB', options).toUpperCase();
+		},
+		DELETE(id) {
+			this.tmpID = id;
+			var url = `http://127.0.0.1:3427/events/delete/${this.tmpID}`;
+			axios.delete(url)
+				.then(() => {
+					console.log('deleted event ' + this.tmpID);
+					this.Data.Events = this.Data.Events.filter(event => event._id !== this.tmpID);
+					$('#myModal').modal('hide');
+				})
+				.catch((err) => {
+					console.log(err);
+				});
 		}
 	},
 	mounted() {
