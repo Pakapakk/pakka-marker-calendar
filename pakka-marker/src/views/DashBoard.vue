@@ -5,8 +5,8 @@
 				<div class="calendar-container">
 					<div class="space-y-2">
 						<!-- Use VDatePicker to select a date -->
-						<VDatePicker expanded v-model="range" mode="date" rules="auto" is24hr :update-on-input="true"
-							color="green" />
+						<VDatePicker expanded v-model="range" mode="date" rules="auto" is24hr
+							color="green"/>
 					</div>
 				</div>
 				<div class="add-button">
@@ -76,7 +76,13 @@ export default {
 				Events: [],
 				EventDetail: {},
 				tmpID: ''
-			}
+			},
+			attrs: {
+                dot: 'true',
+				dates: [
+					new Date(2024, 6, 15)
+				]
+            }
 		};
 	},
 	computed: {

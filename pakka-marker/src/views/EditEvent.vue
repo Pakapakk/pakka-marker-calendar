@@ -4,8 +4,7 @@
             <div class="calendar-wrapper">
                 <div class="calendar-container">
                     <div class="space-y-2">
-                        <VDatePicker expanded v-model.range="range" mode="date" rules="auto" is24hr
-                            :update-on-input="true" color="green"/>
+                        <VDatePicker expanded v-model.range="range" mode="date" rules="auto" is24hr color="green"/>
                     </div>
                 </div>
             </div>
