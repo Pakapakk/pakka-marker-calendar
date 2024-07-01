@@ -4,7 +4,8 @@
 			<div class="calendar-wrapper">
 				<div class="calendar-container">
 					<div class="space-y-2">
-						<VDatePicker class="text-2xl" v-model.range="range" expanded borderless color="green" />
+						<!-- Use VDatePicker to select a date -->
+						<VDatePicker expanded v-model="range" mode="date" rules="auto" is24hr :update-on-input="true" color="green"/>
 					</div>
 				</div>
 				<div class="add-button">
@@ -15,9 +16,9 @@
 			</div>
 		</div>
 		<div class="events-section">
-			<h2 class="text-xl">Today's Events</h2>
+			<h2 class="text-xl">Events on Selected Date</h2>
 			<div v-if="filterEvents.length === 0">
-				<p>No events for today.</p>
+				<p>No events for the selected date.</p>
 			</div>
 			<div v-else>
 				<div v-for="event in filterEvents" :key="event.id" class="event-card">
@@ -30,7 +31,8 @@
 		</div>
 
 		<!-- Modal for More Info -->
-		<div class="modal" id="myModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+		<div class="modal" id="myModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
+			aria-hidden="true">
 			<div class="modal-dialog modal-dialog-centered" role="document">
 				<div class="modal-content">
 					<div class="modal-header">
@@ -40,7 +42,6 @@
 						</button>
 					</div>
 					<div class="modal-body">
-						<!-- <p><strong>ID:</strong> {{ Data.EventDetail._id }}</p> -->
 						<p><strong>Start Time:</strong> {{ formatDate(Data.EventDetail.StartTime) }}</p>
 						<p><strong>End Time:</strong> {{ formatDate(Data.EventDetail.EndTime) }}</p>
 						<p><strong>City:</strong> {{ Data.EventDetail.City }}</p>
@@ -60,75 +61,60 @@
 	</div>
 </template>
 
-
 <script>
-import { ref, watch, computed } from 'vue';
 import axios from 'axios';
 
 export default {
 	name: 'DashBoard',
-	setup() {
-		const range = ref({
-			start: new Date(),
-			end: new Date()
-		});
-
-		const Data = ref({
-			search: '',
-			EventId: 'helloilovewebprosomuch69',
-			Events: [],
-			EventDetail: {}
-		});
-
-
-
-		const filterEvents = computed(() => {
-			console.log(range.value.start)
-			const selectedDay = new Date(range.value.start).toISOString().split('T')[0];
-			// const today = new Date().toISOString().split('T')[0];
-			console.log(selectedDay);
-			// console.log(today);
-
-			return Data.value.Events.filter((event) => {
-				const eventDate = new Date(event.StartTime).toISOString().split('T')[0];
-				return eventDate === selectedDay && event.EventName?.toLowerCase().includes(Data.value.search.toLowerCase());
+	data() {
+		return {
+			range: new Date(),
+			Data: {
+				search: '',
+				EventId: 'helloilovewebprosomuch69',
+				Events: [],
+				EventDetail: {}
+			}
+		};
+	},
+	computed: {
+		filterEvents() {
+			const selectedDay = this.formatLocalDateString(new Date(this.range));
+			return this.Data.Events.filter((event) => {
+				const eventDate = this.formatLocalDateString(new Date(event.StartTime));
+				return eventDate === selectedDay && event.EventName.toLowerCase().includes(this.Data.search.toLowerCase());
 			});
-		});
-
-		const openMoreInfo = (id) => {
-			Data.value.EventId = id;
-			console.log("event -> " + Data.value.EventId);
+		}
+	},
+	methods: {
+		formatLocalDateString(date) {
+			const year = date.getFullYear();
+			const month = String(date.getMonth() + 1).padStart(2, '0');
+			const day = String(date.getDate()).padStart(2, '0');
+			return `${year}-${month}-${day}`;
+		},
+		openMoreInfo(id) {
+			this.Data.EventId = id;
 			$('#myModal').modal('show');
 
-			axios.get('http://127.0.0.1:3427/events/readevent/' + Data.value.EventId)
+			axios.get(`http://127.0.0.1:3427/events/readevent/${this.Data.EventId}`)
 				.then((response) => {
-					console.log(response);
-					Data.value.EventDetail = response.data;
+					this.Data.EventDetail = response.data;
 				});
-		};
-
-		const formatDate = (date) => {
+		},
+		formatDate(date) {
 			const options = { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit', hour12: true };
 			return new Date(date).toLocaleString('en-GB', options).toUpperCase();
-		};
-
+		}
+	},
+	mounted() {
 		axios.get('http://127.0.0.1:3427/events/getevents')
 			.then((response) => {
-				console.log(response);
-				Data.value.Events = response.data;
+				this.Data.Events = response.data;
 			});
-
-		return {
-			range,
-			Data,
-			filterEvents,
-			openMoreInfo,
-			formatDate
-		};
 	}
-}
+};
 </script>
-
 
 <style>
 .dashboard-container {
@@ -176,9 +162,7 @@ export default {
 	padding: 10px;
 	margin-bottom: 10px;
 	border-radius: 10px;
-	/* Rounded edges */
 	box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-	/* Shadow */
 	width: 500px;
 }
 

@@ -4,14 +4,15 @@
             <div class="calendar-wrapper">
                 <div class="calendar-container">
                     <div class="space-y-2">
-                        <VDatePicker expanded v-model.range="range" mode="date" rules="auto" is24hr :update-on-input="true"/>
+                        <VDatePicker expanded v-model.range="range" mode="date" rules="auto" is24hr
+                            :update-on-input="true" color="green"/>
                     </div>
                 </div>
             </div>
         </div>
         <div class="events-section">
-            <h2 class="text-xl">Add Event</h2>
-            <form @submit.prevent="addEvent">
+            <h2 class="text-xl">Edit Event</h2>
+            <form @submit.prevent="editEvent">
                 <div class="form-group">
                     <label for="eventName">Event Name</label>
                     <input type="text" class="form-control" id="eventName" v-model="Event.EventName" required />
@@ -37,7 +38,7 @@
                     <label for="description">Description</label>
                     <textarea class="form-control" id="description" v-model="Event.Description" required></textarea>
                 </div>
-                <button type="submit" class="btn btn-primary">Add Event</button>
+                <button type="submit" class="btn btn-primary">Edit Event</button>
             </form>
             <!-- <button class="test" @click="test">test</button> -->
         </div>
@@ -45,18 +46,43 @@
 </template>
 
 <script>
-import axios from 'axios'
-import { ref, watch } from 'vue';
+import axios from 'axios';
 
 export default {
-    name: 'EditEvent',
-    setup() {
-        const range = ref({
-            start: new Date(),
-            end: new Date()
-        });
-
-        function formatDate(date) {
+    name: 'AddEvent',
+    data() {
+        return {
+            Event: {
+                StartTime: '',
+                EndTime: '',
+                EventName: '',
+                City: '',
+                Country: '',
+                Description: ''
+            },
+            attrs: {},
+            range: {
+                
+            },
+        };
+    },
+    watch: {
+        range: {
+            handler(newRange) {
+                this.Event.StartTime = this.formatDate(newRange.start);
+                this.Event.EndTime = this.formatDate(newRange.end);
+            },
+            deep: true
+        },
+        'Event.StartTime': function (newStartTime) {
+            this.range.start = new Date(newStartTime);
+        },
+        'Event.EndTime': function (newEndTime) {
+            this.range.end = new Date(newEndTime);
+        }
+    },
+    methods: {
+        formatDate(date) {
             const d = new Date(date);
             const yyyy = d.getFullYear();
             const mm = String(d.getMonth() + 1).padStart(2, '0');
@@ -64,39 +90,9 @@ export default {
             const hh = String(d.getHours()).padStart(2, '0');
             const min = String(d.getMinutes()).padStart(2, '0');
             return `${yyyy}-${mm}-${dd}T${hh}:${min}`;
-        }
-
-        const Event = ref({
-            StartTime: '',
-            EndTime: '',
-            EventName: '',
-            City: '',
-            Country: '',
-            Description: ''
-        });
-
-        watch(() => range.value, (newRange) => {
-            Event.value.StartTime = formatDate(newRange.start);
-            Event.value.EndTime = formatDate(newRange.end);
-        }, { deep: true });
-
-        // Watch for changes in Event and update range
-        watch(() => Event.value.StartTime, (newStartTime) => {
-            range.value.start = new Date(newStartTime);
-        });
-
-        watch(() => Event.value.EndTime, (newEndTime) => {
-            range.value.end = new Date(newEndTime);
-        });
-
-        return {
-            range,
-            Event,
-        };
-    },
-    methods: {
-        addEvent() {
-            axios.post('http://127.0.0.1:3427/events/addevent', this.Event)
+        },
+        editEvent() {
+            axios.post(`http://127.0.0.1:3427/events/update/${this.$route.params.id}`, this.Event)
                 .then(response => {
                     console.log(response.data);
                 })
@@ -105,18 +101,19 @@ export default {
                 });
         }
     },
-	mounted(){
-		axios.get('http://127.0.0.1:3427/events/update/' + this.$route.params.id)
-            .then((res) => {
-                this.Event = res.data;
-                console.log(res.data);
+    mounted() {
+        axios.get(`http://127.0.0.1:3427/events/update/${this.$route.params.id}`)
+            .then((response) => {
+                this.Event = response.data;
+                this.range.start = new Date(this.Event.StartTime);
+                this.range.end = new Date(this.Event.EndTime);
+                console.log(response.data);
             })
-            .catch((error) => {
+            .catch(error => {
                 console.log(error);
-            })
-	}
-
-}
+            });
+    }
+};
 </script>
 
 <style>
