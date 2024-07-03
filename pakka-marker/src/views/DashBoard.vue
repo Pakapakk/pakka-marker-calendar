@@ -132,6 +132,7 @@ export default {
 				if(json.cod === '404'){
 					console.log("Not-Found");
 					this.weatherImg = '/images/404.png'
+					this.Data.locationTemp = '-'
 				}
 				else{
 					console.log(json)
@@ -157,7 +158,10 @@ export default {
 							this.Data.weatherImg = '/images/404.png'
 							break;
 					}
-					this.Data.locationTemp = json.list[0].main.temp;
+					if(json.list[0].main.temp)
+						this.Data.locationTemp = json.list[0].main.temp
+					else
+					 this.Data.locationTemp = '-'
 				}
 			})
 			});
