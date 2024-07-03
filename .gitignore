@@ -23,5 +23,5 @@
 */.DS_Store
 
 **/.env
-**/cred.json
 **/APIkey.json
+**/cred.json
