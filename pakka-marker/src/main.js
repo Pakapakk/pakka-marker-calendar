@@ -6,6 +6,8 @@ import 'bootstrap'
 import 'bootstrap/dist/css/bootstrap.min.css'
 import 'v-calendar/style.css';
 import VCalendar from 'v-calendar';
+import apiKey from './APIkey.json';
+
 
 // Import the functions you need from the SDKs you need
 import { initializeApp } from "firebase/app";
@@ -15,18 +17,17 @@ let app;
 let auth;
 
 
-
 // TODO: Add SDKs for Firebase products that you want to use
 // https://firebase.google.com/docs/web/setup#available-libraries
 
 // Your web app's Firebase configuration
 const firebaseConfig = {
-    apiKey: `import.meta.env.VUE_APP_FIREBASE_API_KEY`,
-    authDomain: `import.meta.env.VUE_APP_FIREBASE_AUTH_DOMAIN`,
-    projectId: "webpro-contact",
-    storageBucket: "webpro-contact.appspot.com",
-    messagingSenderId: `import.meta.env.VUE_APP_FIREBASE_SENDER_ID`,
-    appId: `import.meta.env.VUE_APP_FIREBASE_APP_ID`
+    apiKey: apiKey.fireStore.apiKey,
+    authDomain: apiKey.fireStore.authDomain,
+    projectId: apiKey.fireStore.projectId,
+    storageBucket: apiKey.fireStore.storageBucket,
+    messagingSenderId: apiKey.fireStore.messagingSenderId,
+    appId: apiKey.fireStore.appId
   };
 
 // Initialize Firebase
@@ -38,3 +39,4 @@ onAuthStateChanged(auth, (user) => {
         app = createApp(App).use(router).use(VCalendar).mount("#app");
     }
 });
+

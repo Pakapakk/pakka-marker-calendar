@@ -4,7 +4,7 @@ import { RouterLink, RouterView } from 'vue-router'
 
 <template>
   <header>
-    <Navbar/>
+    <Navbar v-if="!$route.meta.hideNavbar"/>
   </header>
   <RouterView></RouterView>
 </template>

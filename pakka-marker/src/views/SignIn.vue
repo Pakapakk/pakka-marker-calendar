@@ -19,7 +19,7 @@
   </template>
   
   <script>
-//   import { getAuth, signInWithEmailAndPassword } from "firebase/auth";
+  import { getAuth, signInWithEmailAndPassword } from "firebase/auth";
 //   import md5 from "md5";
   export default{
       name: 'SignIn',
@@ -35,7 +35,17 @@
       },
       methods: {
           SignIn(){
-              this.errorMessage = ""
+            const auth = getAuth()
+            signInWithEmailAndPassword(auth, this.formData.email, this.formData.password)
+            .then(user => {
+                this.$router.replace('/dashboard')
+                this.xhrRequest = false
+            })
+            .catch((error)=>{
+                alert(error.message)
+                this.errorMessage = error.message
+                this.xhrRequest = false
+            })
           }
       }
   }

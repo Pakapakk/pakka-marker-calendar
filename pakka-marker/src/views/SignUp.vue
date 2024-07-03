@@ -19,7 +19,7 @@
   </template>
   
   <script>
-//   import { getAuth, signInWithEmailAndPassword } from "firebase/auth";
+import { createUserWithEmailAndPassword, getAuth, signInWithEmailAndPassword } from "firebase/auth";
 //   import md5 from "md5";
   export default{
       name: 'SignUp',
@@ -34,8 +34,19 @@
           }
       },
       methods: {
-          SignIn(){
-              this.errorMessage = ""
+          SignUp(){
+            const auth = getAuth();
+            createUserWithEmailAndPassword(auth, this.formData.email, this.formData.password)
+            .then(user =>{
+                this.successMessage = 'Success';
+                this.xhrRequest = false;
+                this.$router.replace('/dashboard');
+            })
+            .catch(error => {
+                alert(error.message);
+                this.errorMessage = error.message;
+                this.xhrRequest = false;
+            })
           }
       }
   }

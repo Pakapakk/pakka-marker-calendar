@@ -67,7 +67,7 @@
 
 <script>
 import axios from 'axios';
-const weatherAPIkey = "5d9d32200a84199ec1c632c65e028ac4";
+import apiKey from '../APIkey.json'
 
 export default {
 	name: 'DashBoard',
@@ -116,7 +116,7 @@ export default {
 		},
 		async openMoreInfo(id) {
 			this.Data.EventId = id;
-			const weatherAPIkey = 'f649f878bddca1f1d3fec205bfbbae9f';
+			const weatherAPIkey = apiKey.openWeather.apiKey;
 			$('#myModal').modal('show');
 			
 			axios.get(`http://127.0.0.1:3427/events/readevent/${this.Data.EventId}`)
@@ -124,8 +124,6 @@ export default {
 				
 				this.Data.EventDetail = response.data;
 
-				let eventLocation = this.Data.EventDetail.City;
-				console.log(this.Data.EventDetail.City);
 				fetch(`https://api.openweathermap.org/data/2.5/find?q=${this.Data.EventDetail.City}&type=accurate&units=metric&appid=${weatherAPIkey}`)
 				.then((response => response.json()))
 				.then(json =>{
@@ -135,8 +133,7 @@ export default {
 					this.Data.locationTemp = '-'
 				}
 				else{
-					console.log(json)
-					console.log(json.list[0].weather[0].main)
+
 					switch (json.list[0].weather[0].main) {
 						case 'Clear':
 							this.Data.weatherImg = '/images/clear.png'
