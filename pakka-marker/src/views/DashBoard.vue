@@ -52,12 +52,18 @@
 						<img v-bind:src=getWeatherImg alt="weatherImg" width = 90px height =90px style="margin-left: 3rem">
 						<p><strong>Temperature: </strong>{{ getLocationTemp }} &deg;C</p>
 					</div>
-					<div class="modal-footer">
+					<div class="modal-footer horizontal-flex">
 						<router-link :to="{ path: 'editEvent', name: 'editEvent', params: { id: Data.EventId } }">
-							<button class="btn btn-primary btn-sm mr-2" data-bs-dismiss="modal">Edit</button>
+							<button class="btn btn-primary btn-sm mr-2" data-bs-dismiss="modal">
+								<i class="fa fa-pencil"></i>
+							</button>
 						</router-link>
-						<button type="button" class="btn btn-danger"
-							@click="DELETE(Data.EventDetail._id)">Delete</button>
+						
+						<a>
+							<button type="button" class="btn btn-danger" @click="DELETE(Data.EventDetail._id)">
+								<i class="fa fa-trash-o"></i>
+							</button>
+						</a>
 					</div>
 				</div>
 			</div>
@@ -193,7 +199,7 @@ export default {
 };
 </script>
 
-<style>
+<style scoped>
 .dashboard-container {
 	display: flex;
 	width: 100vw;
@@ -250,6 +256,25 @@ export default {
 
 .event-card p {
 	margin: 5px 0;
+}
+
+.horizontal-flex {
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	flex-direction: row!important;
+}
+
+.horizontal-flex > a {
+	display: block;
+}
+.horizontal-flex > a > button {
+	width: 40px;
+	height: 40px;
+	font-size: 1.5rem;
+	display: flex;
+	justify-content: center;
+	align-items: center;
 }
 
 
