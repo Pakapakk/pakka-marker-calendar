@@ -94,6 +94,7 @@ export default {
             axios.post('http://127.0.0.1:3427/events/addevent', this.Event)
                 .then(response => {
                     console.log(response.data);
+                    this.$router.replace("/dashboard")
                 })
                 .catch(error => {
                     console.log(error);

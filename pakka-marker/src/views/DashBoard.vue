@@ -103,7 +103,8 @@ export default {
 			const selectedDay = this.formatLocalDateString(new Date(this.range));
 			return this.Data.Events.filter((event) => {
 				const eventDate = this.formatLocalDateString(new Date(event.StartTime));
-				return eventDate === selectedDay && event.EventName.toLowerCase().includes(this.Data.search.toLowerCase());
+				const eventEndDate = this.formatLocalDateString(new Date(event.EndTime));
+				return eventDate === selectedDay && event.EventName.toLowerCase().includes(this.Data.search.toLowerCase()) || (selectedDay >= eventDate && selectedDay <= eventEndDate);
 			});
 		},
 		getWeatherImg(){
