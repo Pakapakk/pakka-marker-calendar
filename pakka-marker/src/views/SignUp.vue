@@ -1,6 +1,6 @@
 <template>
-    <div style="max-width: 1280px; width: 70rem;">
-        <div class="sign-in-container">
+    <div style="width: 100vw; height: 100vh; display:flex; justify-content: center; align-items: center">
+        <div class="sign-in-container" style="width:70vw; min-width: 300px; max-width: 500px;">
             <form class="sign-in-form" @submit.prevent="SignUp">
             <h2>Sign Up</h2>
             <div class="form-group">
@@ -19,7 +19,7 @@
   </template>
   
   <script>
-//   import { getAuth, signInWithEmailAndPassword } from "firebase/auth";
+import { createUserWithEmailAndPassword, getAuth, signInWithEmailAndPassword } from "firebase/auth";
 //   import md5 from "md5";
   export default{
       name: 'SignUp',
@@ -34,8 +34,19 @@
           }
       },
       methods: {
-          SignIn(){
-              this.errorMessage = ""
+          SignUp(){
+            const auth = getAuth();
+            createUserWithEmailAndPassword(auth, this.formData.email, this.formData.password)
+            .then(user =>{
+                this.successMessage = 'Success';
+                this.xhrRequest = false;
+                this.$router.replace('/dashboard');
+            })
+            .catch(error => {
+                alert(error.message);
+                this.errorMessage = error.message;
+                this.xhrRequest = false;
+            })
           }
       }
   }

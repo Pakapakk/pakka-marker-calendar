@@ -2,17 +2,6 @@
 var mongoose = require('mongoose');
 var Schema = mongoose.Schema;
 
-var AccountSchema = new Schema({
-    Username: {
-        type: String,
-        required: 'Please enter'
-    },
-    Password: {
-        type: String,
-        required: 'Please enter'
-    },
-}, { collection: 'User' });
-
 var EventSchema = new Schema({
     StartTime: {
         type: Date,
@@ -42,6 +31,5 @@ var EventSchema = new Schema({
 
 
 const Event = mongoose.model('Event', EventSchema);
-const Account = mongoose.model('Account', AccountSchema);
 
-module.exports = { Event, Account };
+module.exports = { Event };

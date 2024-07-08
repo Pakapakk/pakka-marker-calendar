@@ -17,13 +17,37 @@
                     </li>
                 </ul>
                 <form class="d-flex">
-                    <input class="form-control me-2" type="search" placeholder="Search" aria-label="Search">
-                    <button class="btn btn-outline-success" type="submit">Search</button>
+                    <!-- <input class="form-control me-2" type="search" placeholder="Search" aria-label="Search"> -->
+                    <!-- <button class="btn btn-outline-success" type="submit">Search</button> -->
+                    <button class="btn btn-danger" @click="signOut">sign out</button>
                 </form>
             </div>
         </div>
     </nav>
 </template>
+
+<script lang="js">
+import { defineComponent } from 'vue';
+import { getAuth, signOut } from "firebase/auth";
+export default defineComponent({
+
+    methods: {
+        signOut(){
+            const auth = getAuth()
+            signOut(auth)
+            .then(()=>{
+                this.$router.replace("/signin")
+            })
+            .catch(error =>{
+            alert(this.errorMessage)
+            })
+        }
+    }
+
+})
+
+</script>
+
 
 <style scoped>
 

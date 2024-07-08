@@ -4,7 +4,9 @@
 			<div class="calendar-wrapper">
 				<div class="calendar-container">
 					<div class="space-y-2">
-						<VDatePicker class="text-2xl" v-model.range="range" expanded borderless color="green" />
+						<!-- Use VDatePicker to select a date -->
+						<VDatePicker expanded v-model="range" mode="date" rules="auto" is24hr
+							color="green"/>
 					</div>
 				</div>
 				<div class="add-button">
@@ -15,9 +17,9 @@
 			</div>
 		</div>
 		<div class="events-section">
-			<h2 class="text-xl">Today's Events</h2>
+			<h2 class="text-xl">Events on Selected Date</h2>
 			<div v-if="filterEvents.length === 0">
-				<p>No events for today.</p>
+				<p>No events for the selected date.</p>
 			</div>
 			<div v-else>
 				<div v-for="event in filterEvents" :key="event.id" class="event-card">
@@ -30,29 +32,38 @@
 		</div>
 
 		<!-- Modal for More Info -->
-		<div class="modal" id="myModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+		<div class="modal" id="myModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
+			aria-hidden="true">
 			<div class="modal-dialog modal-dialog-centered" role="document">
 				<div class="modal-content">
 					<div class="modal-header">
 						<h5 class="modal-title" id="exampleModalLabel">{{ Data.EventDetail.EventName }}</h5>
-						<button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
-							<span aria-hidden="true">&times;</span>
+						<button type="button" class="btn close-btn" data-bs-dismiss="modal" aria-label="Close" style="width : 2rem;">
+							<span aria-hidden="true" style="font-size: 1.5rem;">&times;</span>
 						</button>
 					</div>
 					<div class="modal-body">
-						<!-- <p><strong>ID:</strong> {{ Data.EventDetail._id }}</p> -->
 						<p><strong>Start Time:</strong> {{ formatDate(Data.EventDetail.StartTime) }}</p>
 						<p><strong>End Time:</strong> {{ formatDate(Data.EventDetail.EndTime) }}</p>
 						<p><strong>City:</strong> {{ Data.EventDetail.City }}</p>
 						<p><strong>Country:</strong> {{ Data.EventDetail.Country }}</p>
 						<p><strong>Description:</strong> {{ Data.EventDetail.Description }}</p>
+						<p><strong>Weather:</strong></p>
+						<img v-bind:src=getWeatherImg alt="weatherImg" width = 90px height =90px style="margin-left: 3rem">
+						<p><strong>Temperature: </strong>{{ getLocationTemp }} &deg;C</p>
 					</div>
-					<div class="modal-footer">
+					<div class="modal-footer horizontal-flex">
 						<router-link :to="{ path: 'editEvent', name: 'editEvent', params: { id: Data.EventId } }">
-							<button class="btn btn-primary btn-sm mr-2" data-bs-dismiss="modal">Edit</button>
+							<button class="btn btn-primary btn-sm mr-2" data-bs-dismiss="modal">
+								<i class="fa fa-pencil"></i>
+							</button>
 						</router-link>
-						<button type="button" class="btn btn-danger"
-							@click="deleteEvent(Data.EventDetail._id)">Delete</button>
+						
+						<a>
+							<button type="button" class="btn btn-danger" @click="DELETE(Data.EventDetail._id)">
+								<i class="fa fa-trash-o"></i>
+							</button>
+						</a>
 					</div>
 				</div>
 			</div>
@@ -60,77 +71,136 @@
 	</div>
 </template>
 
-
 <script>
-import { ref, watch, computed } from 'vue';
 import axios from 'axios';
+import apiKey from '../APIkey.json'
 
 export default {
 	name: 'DashBoard',
-	setup() {
-		const range = ref({
-			start: new Date(),
-			end: new Date()
-		});
-
-		const Data = ref({
-			search: '',
-			EventId: 'helloilovewebprosomuch69',
-			Events: [],
-			EventDetail: {}
-		});
-
-
-
-		const filterEvents = computed(() => {
-			console.log(range.value.start)
-			const selectedDay = new Date(range.value.start).toISOString().split('T')[0];
-			// const today = new Date().toISOString().split('T')[0];
-			console.log(selectedDay);
-			// console.log(today);
-
-			return Data.value.Events.filter((event) => {
-				const eventDate = new Date(event.StartTime).toISOString().split('T')[0];
-				return eventDate === selectedDay && event.EventName?.toLowerCase().includes(Data.value.search.toLowerCase());
-			});
-		});
-
-		const openMoreInfo = (id) => {
-			Data.value.EventId = id;
-			console.log("event -> " + Data.value.EventId);
-			$('#myModal').modal('show');
-
-			axios.get('http://127.0.0.1:3427/events/readevent/' + Data.value.EventId)
-				.then((response) => {
-					console.log(response);
-					Data.value.EventDetail = response.data;
-				});
+	data() {
+		return {
+			range: new Date(),
+			Data: {
+				search: '',
+				EventId: 'helloilovewebprosomuch69',
+				Events: [],
+				EventDetail: {},
+				tmpID: '',
+				locationWeather: '',
+				weatherImg:'../assets/images/404.png',
+				locationTemp: '',
+			},
+			attrs: {
+                dot: 'true',
+				dates: [
+					new Date(2024, 6, 15)
+				]
+            }
 		};
+	},
+	computed: {
+		filterEvents() {
+			const selectedDay = this.formatLocalDateString(new Date(this.range));
+			return this.Data.Events.filter((event) => {
+				const eventDate = this.formatLocalDateString(new Date(event.StartTime));
+				const eventEndDate = this.formatLocalDateString(new Date(event.EndTime));
+				return eventDate === selectedDay && event.EventName.toLowerCase().includes(this.Data.search.toLowerCase()) || (selectedDay >= eventDate && selectedDay <= eventEndDate);
+			});
+		},
+		getWeatherImg(){
+			return this.Data.weatherImg;
+		},
+		getLocationTemp(){
+			return this.Data.locationTemp;
+		}
+	},
+	methods: {
+		formatLocalDateString(date) {
+			const year = date.getFullYear();
+			const month = String(date.getMonth() + 1).padStart(2, '0');
+			const day = String(date.getDate()).padStart(2, '0');
+			return `${year}-${month}-${day}`;
+		},
+		async openMoreInfo(id) {
+			this.Data.EventId = id;
+			const weatherAPIkey = apiKey.openWeather.apiKey;
+			$('#myModal').modal('show');
+			
+			axios.get(`http://127.0.0.1:3427/events/readevent/${this.Data.EventId}`)
+			.then((response) => {
+				
+				this.Data.EventDetail = response.data;
 
-		const formatDate = (date) => {
+				fetch(`https://api.openweathermap.org/data/2.5/find?q=${this.Data.EventDetail.City}&type=accurate&units=metric&appid=${weatherAPIkey}`)
+				.then((response => response.json()))
+				.then(json =>{
+				if(json.cod === '404'){
+					console.log("Not-Found");
+					this.weatherImg = '/images/404.png'
+					this.Data.locationTemp = '-'
+				}
+				else{
+
+					switch (json.list[0].weather[0].main) {
+						case 'Clear':
+							this.Data.weatherImg = '/images/clear.png'
+							break;
+						case 'Rain':
+							this.Data.weatherImg = '/images/rain.png'
+							break;
+						case 'Snow':
+							this.Data.weatherImg = '/images/snow.png'
+							break;
+						case 'Clouds':
+							console.log("here")
+							this.Data.weatherImg = '/images/cloud.png'
+							break;
+						case 'Haze':
+							this.Data.weatherImg = '/images/mist.png'
+							break;
+						default:
+							this.Data.weatherImg = '/images/404.png'
+							break;
+					}
+					if(json.list[0].main.temp)
+						this.Data.locationTemp = json.list[0].main.temp
+					else
+					 this.Data.locationTemp = '-'
+				}
+			})
+			});
+
+			
+			
+		},
+		formatDate(date) {
 			const options = { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit', hour12: true };
 			return new Date(date).toLocaleString('en-GB', options).toUpperCase();
-		};
-
+		},
+		DELETE(id) {
+			this.tmpID = id;
+			var url = `http://127.0.0.1:3427/events/delete/${this.tmpID}`;
+			axios.delete(url)
+				.then(() => {
+					console.log('deleted event ' + this.tmpID);
+					this.Data.Events = this.Data.Events.filter(event => event._id !== this.tmpID);
+					$('#myModal').modal('hide');
+				})
+				.catch((err) => {
+					console.log(err);
+				});
+		}
+	},
+	mounted() {
 		axios.get('http://127.0.0.1:3427/events/getevents')
 			.then((response) => {
-				console.log(response);
-				Data.value.Events = response.data;
+				this.Data.Events = response.data;
 			});
-
-		return {
-			range,
-			Data,
-			filterEvents,
-			openMoreInfo,
-			formatDate
-		};
 	}
-}
+};
 </script>
 
-
-<style>
+<style scoped>
 .dashboard-container {
 	display: flex;
 	width: 100vw;
@@ -176,9 +246,7 @@ export default {
 	padding: 10px;
 	margin-bottom: 10px;
 	border-radius: 10px;
-	/* Rounded edges */
 	box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-	/* Shadow */
 	width: 500px;
 }
 
@@ -190,4 +258,25 @@ export default {
 .event-card p {
 	margin: 5px 0;
 }
+
+.horizontal-flex {
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	flex-direction: row!important;
+}
+
+.horizontal-flex > a {
+	display: block;
+}
+.horizontal-flex > a > button {
+	width: 40px;
+	height: 40px;
+	font-size: 1.5rem;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+}
+
+
 </style>
