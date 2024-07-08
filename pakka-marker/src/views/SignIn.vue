@@ -1,6 +1,6 @@
 <template>
-    <div style="max-width: 1280px; width: 70rem;">
-        <div class="sign-in-container">
+    <div style="width: 100vw; height: 100vh; display:flex; justify-content: center; align-items: center">
+        <div class="sign-in-container" style="width:70vw; min-width: 300px; max-width: 500px;">
             <form class="sign-in-form" @submit.prevent="signIn">
             <h2>Sign In</h2>
             <div class="form-group">
