@@ -131,13 +131,17 @@ export default {
 }
 
 .calendar-wrapper {
-    width: 100%;
+	width: 100%;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	flex-direction: column
 }
 
 .calendar-container {
-    width: 100%;
-    justify-content: center;
-    align-items: center;
+	width: 80%;
+	justify-content: center;
+	align-items: center;
 }
 
 .add-button {
@@ -202,4 +206,11 @@ export default {
 button {
     width: 100%;
 }
+
+@media(max-width: 640px) {
+    .dashboard-container {
+        flex-direction: column;
+    }
+}
+
 </style>

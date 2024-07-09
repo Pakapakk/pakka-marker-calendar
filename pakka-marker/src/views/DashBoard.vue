@@ -11,7 +11,7 @@
 				</div>
 				<div class="add-button">
 					<router-link to="/addEvent">
-						<button class="btn btn-warning" style="margin-left: 10px;">Add</button>
+						<button class="btn btn-warning">Add</button>
 					</router-link>
 				</div>
 			</div>
@@ -217,6 +217,10 @@ export default {
 
 .calendar-wrapper {
 	width: 100%;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	flex-direction: column
 }
 
 .calendar-container {
@@ -227,6 +231,7 @@ export default {
 
 .add-button {
 	margin-top: 20px;
+	width: 80%;
 }
 
 .events-section {
