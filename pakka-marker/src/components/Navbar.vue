@@ -1,7 +1,7 @@
 <template>
   <nav class="navbar">
     <div class="container-fluid">
-      <router-link path = "/dashboard">
+      <router-link to = "/dashboard">
         <button class="btn" style="font-weight: 500;">Pakka-Marker</button>
       </router-link>
       <form class="d-flex">
