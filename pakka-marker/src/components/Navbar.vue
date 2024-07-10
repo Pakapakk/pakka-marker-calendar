@@ -1,9 +1,11 @@
 <template>
   <nav class="navbar">
     <div class="container-fluid">
-      <a class="navbar-brand">Pakka-Marker</a>
+      <router-link path = "/dashboard">
+        <button class="btn" style="font-weight: 500;">Pakka-Marker</button>
+      </router-link>
       <form class="d-flex">
-        <button class="btn btn-danger" @click="signOut">sign out</button>
+        <button class="btn btn-danger" @click="signOut"><span><i class="fa fa-sign-out"></i></span></button>
       </form>
     </div>
   </nav>
@@ -34,6 +36,9 @@ export default defineComponent({
 
 <style scoped>
 
+.container-fluid > a:hover{
+  color : green;
+}
 
 .navbar {
     height: 60px;
